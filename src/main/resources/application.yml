@@ -9,13 +9,13 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
-    sql:
-      init:
-        mode: always
+#    sql:
+#      init:
+#        mode: always
 
 logging:
   level:

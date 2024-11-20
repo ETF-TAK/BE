@@ -1,6 +1,7 @@
 package com.example.tak.domain;
 
 import com.example.tak.common.Category;
+import com.example.tak.common.Nation;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -46,6 +47,9 @@ public class ETF {
 
     @Column(name = "category")
     private Category category;
+
+    @Column(name = "nation")
+    private Nation nation;
 
     @Column(name = "fee")
     private Long fee;
