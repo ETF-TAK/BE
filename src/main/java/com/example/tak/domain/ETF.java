@@ -1,5 +1,6 @@
 package com.example.tak.domain;
 
+import com.example.tak.common.Category;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -44,7 +45,7 @@ public class ETF {
     private String sector;
 
     @Column(name = "category")
-    private String category;
+    private Category category;
 
     @Column(name = "fee")
     private Long fee;
@@ -73,7 +74,7 @@ public class ETF {
     private List<Distribution> distributions = new ArrayList<>();
 
     public static ETF of(String name, String type, String company, LocalDateTime listingDate, Long equity,
-                         Long netWorth, Float dividendRate, String sector, String category, Long fee,
+                         Long netWorth, Float dividendRate, String sector, Category category, Long fee,
                          Long price, String ticker, String etfNum, Double iNav, String investPoint) {
         return ETF.builder()
                 .name(name)
