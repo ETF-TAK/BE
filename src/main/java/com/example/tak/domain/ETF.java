@@ -2,6 +2,7 @@ package com.example.tak.domain;
 
 import com.example.tak.common.Category;
 import com.example.tak.common.Nation;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -63,10 +64,11 @@ public class ETF {
     @Column(name = "etf_num")
     private String etfNum;
 
+    @JsonSetter("iNav")
     @Column(name = "i_nav")
     private Double iNav;
 
-    @Column(name = "invest_point")
+    @Column(name = "invest_point", length = 1000)
     private String investPoint;
 
     @Builder.Default
