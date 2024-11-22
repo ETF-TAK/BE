@@ -2,6 +2,7 @@ package com.example.tak.domain;
 
 import com.example.tak.common.Category;
 import com.example.tak.common.Nation;
+import com.example.tak.config.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import jakarta.persistence.*;
 import lombok.*;
@@ -15,7 +16,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ETF {
+public class ETF extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
