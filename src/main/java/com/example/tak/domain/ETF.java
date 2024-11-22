@@ -2,6 +2,8 @@ package com.example.tak.domain;
 
 import com.example.tak.common.Category;
 import com.example.tak.common.Nation;
+import com.example.tak.converter.CategoryConverter;
+import com.example.tak.converter.NationConverter;
 import com.example.tak.config.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import jakarta.persistence.*;
@@ -48,9 +50,11 @@ public class ETF extends BaseEntity {
     private String sector;
 
     @Column(name = "category")
+    @Convert(converter = CategoryConverter.class)
     private Category category;
 
     @Column(name = "nation")
+    @Convert(converter = NationConverter.class)
     private Nation nation;
 
     @Column(name = "fee")
