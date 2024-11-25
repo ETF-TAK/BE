@@ -28,17 +28,11 @@ public class ETF extends BaseEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "type")
-    private String type;
-
     @Column(name = "company")
     private String company;
 
     @Column(name = "listing_date")
     private LocalDateTime listingDate;
-
-    @Column(name = "equity")
-    private Long equity;
 
     @Column(name = "net_worth")
     private Long netWorth;
@@ -84,15 +78,13 @@ public class ETF extends BaseEntity {
     @OneToMany(mappedBy = "etf", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Distribution> distributions = new ArrayList<>();
 
-    public static ETF of(String name, String type, String company, LocalDateTime listingDate, Long equity,
+    public static ETF of(String name, String company, LocalDateTime listingDate,
                          Long netWorth, Float dividendRate, String sector, Category category, Long fee,
                          Long price, String ticker, String etfNum, Double iNav, String investPoint) {
         return ETF.builder()
                 .name(name)
-                .type(type)
                 .company(company)
                 .listingDate(listingDate)
-                .equity(equity)
                 .netWorth(netWorth)
                 .dividendRate(dividendRate)
                 .sector(sector)
