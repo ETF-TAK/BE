@@ -1,4 +1,4 @@
-package com.example.tak.dto;
+package com.example.tak.dto.request;
 
 import com.example.tak.common.Category;
 import com.example.tak.common.Nation;
