@@ -1,7 +1,6 @@
 package com.example.tak.controller;
 
 import com.example.tak.domain.ETF;
-import com.example.tak.dto.EtfRequestDto;
 import com.example.tak.service.EtfDataService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
