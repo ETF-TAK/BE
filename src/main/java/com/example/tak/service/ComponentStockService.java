@@ -35,18 +35,23 @@ public class ComponentStockService {
                 + "&fid_input_iscd=" + etfNum
                 + "&fid_cond_scr_div_code=11216";
 
-        ResponseEntity<String> response = sendRequest(url, HttpMethod.GET);
-        return parseComponentStocks(response);
+        try {
+            ResponseEntity<String> response = sendRequest(url, "FHKST121600C0", HttpMethod.GET);
+            return parseComponentStocks(response);
+        } catch (Exception e) {
+            System.out.println("구성종목 정보를 가져오는 중 오류 발생: " + e.getMessage());
+            return new ArrayList<>(); // 빈 리스트 반환
+        }
     }
 
     // 공통 요청 메서드
-    private ResponseEntity<String> sendRequest(String url, HttpMethod method) {
+    private ResponseEntity<String> sendRequest(String url, String trId, HttpMethod method) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
         headers.set("authorization", accessToken);
         headers.set("appkey", appKey);
         headers.set("appsecret", appSecret);
-        headers.set("tr_id", "FHKST121600C0");
+        headers.set("tr_id", trId);
         headers.set("custtype", "P");
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
@@ -60,6 +65,7 @@ public class ComponentStockService {
 
     // 구성종목 데이터 파싱
     private List<ComponentStockInfo> parseComponentStocks(ResponseEntity<String> response) {
+        List<ComponentStockInfo> stocks = new ArrayList<>();
         try {
             JsonNode responseJson = objectMapper.readTree(response.getBody());
 
@@ -68,15 +74,16 @@ public class ComponentStockService {
 
             if (!"0".equals(responseJson.get("rt_cd").asText())) {
                 String errorMessage = responseJson.has("msg1") ? responseJson.get("msg1").asText() : "Unknown error";
-                throw new RuntimeException("구성종목 조회 실패: " + errorMessage);
+                System.out.println("구성종목 조회 실패: " + errorMessage);
+                return stocks; // 빈 리스트 반환
             }
 
             JsonNode output2 = responseJson.get("output2");
             if (output2 == null || !output2.isArray() || output2.isEmpty()) {
-                throw new RuntimeException("구성종목 데이터가 없습니다.");
+                // 구성종목 데이터가 없는 경우 빈 리스트 반환
+                System.out.println("구성종목 데이터가 없습니다.");
+                return stocks; // 빈 리스트 반환
             }
-
-            List<ComponentStockInfo> stocks = new ArrayList<>();
 
             for (JsonNode node : output2) {
                 String stockCode = node.has("stck_shrn_iscd") ? node.get("stck_shrn_iscd").asText() : null;
@@ -104,7 +111,8 @@ public class ComponentStockService {
             return top10Stocks;
 
         } catch (Exception e) {
-            throw new RuntimeException("구성종목 데이터 파싱 오류 발생: " + e.getMessage(), e);
+            System.out.println("구성종목 데이터 파싱 오류 발생: " + e.getMessage());
+            return stocks; // 빈 리스트 반환
         }
     }
 }

@@ -58,7 +58,6 @@ public class EtfDetailService {
                     .fee(0.07) // 필요 시 설정
                     .profitRate(profitRate)
                     .isPositive(isPositive)
-                    // 추가된 필드들 설정
                     .prdyVrss(currentPriceData.getPrdyVrss())
                     .prdyCtrt(currentPriceData.getPrdyCtrt())
                     .prdyVrssSign(currentPriceData.getPrdyVrssSign())
