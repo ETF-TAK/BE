@@ -8,6 +8,8 @@ import java.util.List;
 @Getter
 @Builder
 public class EtfDetailResult {
-    private final EtfDetailResponse data;
-    private final List<DistributionInfo> distribution;
+    private EtfDetailResponse data;
+    private List<DistributionInfo> distribution;
+    private List<ComponentStockInfo> componentStocks;  // 구성종목(비중 상위 10개)
+    private String investPoint;                        // 투자포인트
 }

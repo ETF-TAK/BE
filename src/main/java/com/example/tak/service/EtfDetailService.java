@@ -1,8 +1,8 @@
 package com.example.tak.service;
 
-import com.example.tak.dto.response.DistributionInfo;
-import com.example.tak.dto.response.EtfDetailResponse;
-import com.example.tak.dto.response.EtfDetailResult;
+import com.example.tak.domain.ETF;
+import com.example.tak.dto.response.*;
+import com.example.tak.repository.EtfRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,57 +14,65 @@ public class EtfDetailService {
 
     private final PriceService priceService;
     private final DistributionService distributionService;
-    // 기타 필요한 서비스 주입
+    private final ComponentStockService componentStockService;
+    private final EtfRepository etfRepository;
 
     public EtfDetailResult getEtfDetail(String etfNum) {
         try {
-            // ETF 번호 검증
-            if (etfNum == null || etfNum.isEmpty()) {
-                throw new IllegalArgumentException("ETF 번호가 유효하지 않습니다.");
-            }
+            // 데이터베이스에서 ETF 정보 가져오기
+            ETF etf = etfRepository.findByEtfNum(etfNum)
+                    .orElseThrow(() -> new RuntimeException("ETF 정보를 찾을 수 없습니다: " + etfNum));
 
             // 가격 정보 가져오기
             Double oneMonthAgoPrice = priceService.getOneMonthAgoPrice(etfNum);
-            Double currentPrice = priceService.getCurrentPrice(etfNum);
+            CurrentPriceData currentPriceData = priceService.getCurrentPriceData(etfNum);
+
+            Double currentPrice = currentPriceData.getCurrentPrice();
+
+            // 현재가와 1개월 전 가격 로그 출력
+            System.out.println("현재가: " + currentPrice);
+            System.out.println("1개월 전 가격: " + oneMonthAgoPrice);
 
             // 수익률 계산
             Double profitRateValue = ((currentPrice - oneMonthAgoPrice) / oneMonthAgoPrice) * 100;
-            String profitRate = String.format("%.2f", profitRateValue);
+            String profitRate = String.format("%.2f", Math.abs(profitRateValue));
             Boolean isPositive = profitRateValue >= 0;
 
             // 분배금 정보 가져오기
             List<DistributionInfo> distributions = distributionService.getDistributionSchedule(etfNum);
 
-            // 기타 필요한 데이터 가져오기 (예: iNav, 수수료 등)
-            Double iNav = 16887.55;
-            Double fee = 0.07;
-            String name = "SOL 조선TOP3플러스";
-            String nation = "KOREA";
-            String category = "GOLD";
-            String sector = "2차전지";
-            Long etfId = 1L;
-            String ticker = "";
+            // 구성종목 정보 가져오기
+            List<ComponentStockInfo> componentStocks = componentStockService.getComponentStocks(etfNum);
 
             // EtfDetailResponse 생성
             EtfDetailResponse etfDetail = EtfDetailResponse.builder()
-                    .etfId(etfId)
-                    .nation(nation)
-                    .category(category)
-                    .sector(sector)
-                    .name(name)
-                    .etfNum(etfNum)
-                    .ticker(ticker)
+                    .etfId(etf.getId())
+                    .nation(etf.getNation().getName())
+                    .category(etf.getCategory().getName())
+                    .sector(etf.getSector())
+                    .name(etf.getName())
+                    .etfNum(etf.getEtfNum())
+                    .ticker("") // 필요 시 설정
                     .price(currentPrice)
-                    .iNav(iNav)
-                    .fee(fee)
+                    .iNav(currentPriceData.getNav())
+                    .fee(0.07) // 필요 시 설정
                     .profitRate(profitRate)
                     .isPositive(isPositive)
+                    // 추가된 필드들 설정
+                    .prdyVrss(currentPriceData.getPrdyVrss())
+                    .prdyCtrt(currentPriceData.getPrdyCtrt())
+                    .prdyVrssSign(currentPriceData.getPrdyVrssSign())
+                    .navPrdyVrss(currentPriceData.getNavPrdyVrss())
+                    .navPrdyVrssSign(currentPriceData.getNavPrdyVrssSign())
+                    .navPrdyCtrt(currentPriceData.getNavPrdyCtrt())
                     .build();
 
             // EtfDetailResult 생성
             EtfDetailResult resultData = EtfDetailResult.builder()
                     .data(etfDetail)
                     .distribution(distributions)
+                    .componentStocks(componentStocks) // 구성종목 추가
+                    .investPoint(etf.getInvestPoint()) // 투자포인트 추가
                     .build();
 
             return resultData;
