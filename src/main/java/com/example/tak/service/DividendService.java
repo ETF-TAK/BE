@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 
 @Service
 public class DividendService {
+
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
