@@ -27,7 +27,7 @@ public class ETFTagSearchController {
             @RequestParam(name = "sector", required = false, defaultValue = "전체") String sector
     ) {
         Nation nationEnum = "전체".equals(nation) ? Nation.ALL : Nation.valueOf(nation);
-        sector = "전체".equals(sector) ? "전체" : sector;
+//        sector = "전체".equals(sector) ? "전체" : sector;
 
         List<String> etfNames = etfTagSearchService.searchETFName(keyword, nationEnum, sector);
         return ApiResponse.onSuccess(etfNames);
