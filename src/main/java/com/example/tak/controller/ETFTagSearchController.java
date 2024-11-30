@@ -23,14 +23,13 @@ public class ETFTagSearchController {
     @GetMapping("/api/tag/search")
     public ApiResponse<List<String>> getETFNames(
             @RequestParam(name = "keyword", required = false) String keyword,
-            @RequestParam(name = "nation", required = false, defaultValue = "all") Nation nation,
-            @RequestParam(name = "sector", required = false, defaultValue = "all") String sector
+            @RequestParam(name = "nation", required = false, defaultValue = "전체") String nation,
+            @RequestParam(name = "sector", required = false, defaultValue = "전체") String sector
     ) {
-        nation = "all".equals(nation) ? null : nation;
-        sector = "all".equals(sector) ? null : sector;
+        Nation nationEnum = "전체".equals(nation) ? Nation.ALL : Nation.valueOf(nation);
+        sector = "전체".equals(sector) ? "전체" : sector;
 
-        List<String> etfNames = etfTagSearchService.searchETFName(keyword, nation, sector);
+        List<String> etfNames = etfTagSearchService.searchETFName(keyword, nationEnum, sector);
         return ApiResponse.onSuccess(etfNames);
     }
-
 }
