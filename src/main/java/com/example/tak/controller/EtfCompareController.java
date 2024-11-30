@@ -30,9 +30,9 @@ public class EtfCompareController {
     }
 
     // 상세 페이지
-    @GetMapping("/detail/{etfNum}")
-    public Map<String, Object> getEtfDetail(@PathVariable("etfNum") String etfNum) {
-        EtfDetailResult resultData = etfDetailService.getEtfDetail(etfNum);
+    @GetMapping("/detail/{identifier}")
+    public Map<String, Object> getEtfDetail(@PathVariable("identifier") String identifier) {
+        EtfDetailResult resultData = etfDetailService.getEtfDetailByIdentifier(identifier);
 
         Map<String, Object> response = new HashMap<>();
         response.put("result", Collections.singletonList(resultData));
