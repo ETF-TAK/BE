@@ -14,7 +14,7 @@ public interface ETFTagSearchRepository extends JpaRepository<ETF, Long> {
 
     @Query("SELECT e.name FROM ETF e WHERE " +
             "(:keyword IS NULL OR e.name LIKE %:keyword%) AND " +
-            "(:nation IS NULL OR e.nation = :nation) AND " +
+            "(:nation IS NULL OR :nation = com.example.tak.common.Nation.ALL OR e.nation = :nation) AND " +
             "(:sector IS NULL OR e.sector = :sector)")
     List<String> searchByFilter(
             @Param("keyword") String keyword,
