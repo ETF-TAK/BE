@@ -27,7 +27,7 @@ public class EtfInfoService {
             String ListingDate = stockInfoService.getListingDate(pdno);
 
             // 3. DividendService에서 배당률 가져오기
-            Float dividendRate = dividendService.getDividendRate(pdno);
+            Float dividendRate = dividendService.calculateDividendRate(pdno);
 
             // 4. 통합 데이터 생성
             etfInfos.add(EtfInfoResponse.builder()

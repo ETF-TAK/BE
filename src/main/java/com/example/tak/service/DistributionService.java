@@ -49,7 +49,6 @@ public class DistributionService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
-        // authorization 헤더 수정
         headers.set("authorization", accessToken);
         headers.set("appkey", appKey);
         headers.set("appsecret", appSecret);
