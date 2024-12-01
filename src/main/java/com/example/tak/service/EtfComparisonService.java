@@ -16,11 +16,11 @@ public class EtfComparisonService {
     private final ComponentStockService componentStockService;
 
     public Map<String, Object> compareEtfComponentStocks(String etfNum1, String etfNum2) {
-        // Step 1: 두 ETF의 구성 종목 가져오기
+        // 1. 두 ETF의 구성 종목 가져오기
         List<ComponentStockInfo> etf1Stocks = componentStockService.getComponentStocks(etfNum1);
         List<ComponentStockInfo> etf2Stocks = componentStockService.getComponentStocks(etfNum2);
 
-        // Step 2: 중복 종목 각각의 비중 포함
+        // 2. 중복 종목 각각의 비중 포함
         List<Map<String, Object>> overlappingStocks = etf1Stocks.stream()
                 .filter(stock1 -> etf2Stocks.stream()
                         .anyMatch(stock2 -> stock1.getStockName().equals(stock2.getStockName())))
@@ -41,7 +41,7 @@ public class EtfComparisonService {
                 })
                 .collect(Collectors.toList());
 
-        // Step 3: 응답 생성
+        // 3. 응답 생성
         Map<String, Object> response = new HashMap<>();
         response.put("overlappingStocks", overlappingStocks);
         response.put("overlapCount", overlappingStocks.size());

@@ -2,7 +2,7 @@ package com.example.tak.service;
 
 import com.example.tak.domain.ETF;
 import com.example.tak.dto.response.CurrentPriceData;
-import com.example.tak.repository.EtfRepository; // 추가
+import com.example.tak.repository.EtfRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ public class UsPriceService {
 
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final EtfRepository etfRepository; // 추가
+    private final EtfRepository etfRepository;
 
     @Value("${ACCESS_TOKEN}")
     private String accessToken;
