@@ -1,6 +1,8 @@
 package com.example.tak.service;
 
+import com.example.tak.domain.ETF;
 import com.example.tak.dto.response.CurrentPriceData;
+import com.example.tak.repository.EtfRepository; // 추가
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ public class UsPriceService {
 
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final EtfRepository etfRepository; // 추가
 
     @Value("${ACCESS_TOKEN}")
     private String accessToken;
@@ -28,53 +31,52 @@ public class UsPriceService {
     @Value("${APP_SECRET}")
     private String appSecret;
 
+    // 현재 체결가 가져오기
+    public CurrentPriceData getCurrentPriceData(String ticker) {
+        ETF etf = etfRepository.findByTicker(ticker)
+                .orElseThrow(() -> new RuntimeException("ETF 정보를 찾을 수 없습니다: " + ticker));
+
+        String url = "https://openapi.koreainvestment.com:9443/uapi/overseas-price/v1/quotations/price"
+                + "?AUTH="
+                + "&EXCD=AMS"
+                + "&SYMB=" + ticker;
+
+        ResponseEntity<String> response = sendRequest(url, "HHDFS00000300", HttpMethod.GET);
+        CurrentPriceData apiData = parseCurrentPrice(response);
+
+        // DB에서 NAV 가져와 병합
+        return CurrentPriceData.builder()
+                .currentPrice(apiData.getCurrentPrice())
+                .prdyVrss(apiData.getPrdyVrss())
+                .prdyCtrt(apiData.getPrdyCtrt())
+                .prdyVrssSign(apiData.getPrdyVrssSign())
+                .nav(etf.getINav() != null ? etf.getINav() : 0.0)
+                .navPrdyVrss(apiData.getNavPrdyVrss() != null ? apiData.getNavPrdyVrss() : 0.0)
+                .navPrdyVrssSign(apiData.getNavPrdyVrssSign() != null ? apiData.getNavPrdyVrssSign() : "N/A")
+                .navPrdyCtrt(apiData.getNavPrdyCtrt() != null ? apiData.getNavPrdyCtrt() : 0.0)
+                .build();
+    }
+
     // 1개월 전 가격 가져오기
     public Double getOneMonthAgoPrice(String ticker) {
-
-        LocalDate today = LocalDate.of(2024, 11, 1);
-
-        // 한 달 전 날짜 계산
-        LocalDate oneMonthAgo = today.minusMonths(1);
+        LocalDate today = LocalDate.now();
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-        String startDate = oneMonthAgo.format(formatter);
         String endDate = today.format(formatter);
 
-        String url = "https://openapi.koreainvestment.com:9443/uapi/overseas-price/v1/quotations/inquire-daily-chartprice"
-                + "?FID_COND_MRKT_DIV_CODE=N"
-                + "&FID_INPUT_ISCD=" + ticker
-                + "&FID_INPUT_DATE_1=" + startDate
-                + "&FID_INPUT_DATE_2=" + endDate
-                + "&FID_PERIOD_DIV_CODE=D";
+        String url = "https://openapi.koreainvestment.com:9443/uapi/overseas-price/v1/quotations/dailyprice"
+                + "?AUTH="
+                + "&EXCD=AMS"
+                + "&SYMB=" + ticker
+                + "&GUBN=2"
+                + "&BYMD=" + endDate
+                + "&MODP=1";
 
-        ResponseEntity<String> response = sendRequest(url, "FHKST03030100", HttpMethod.GET);
-        return parseOneMonthAgoPrice(response);
+        ResponseEntity<String> response = sendRequest(url, "HHDFS76240000", HttpMethod.GET);
+        return parseOneMonthAgoPrice(response, today);
     }
 
-    // 현재가 및 추가 데이터 가져오기
-    public CurrentPriceData getCurrentPriceData(String ticker) {
-
-        LocalDate today = LocalDate.of(2024, 10, 1);
-
-        // 한 달 전 날짜 계산
-        LocalDate oneMonthAgo = today.minusMonths(1);
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-        String startDate = oneMonthAgo.format(formatter);
-        String endDate = today.format(formatter);
-
-        String url = "https://openapi.koreainvestment.com:9443/uapi/overseas-price/v1/quotations/inquire-daily-chartprice"
-                + "?FID_COND_MRKT_DIV_CODE=N"
-                + "&FID_INPUT_ISCD=" + ticker
-                + "&FID_INPUT_DATE_1=" + startDate
-                + "&FID_INPUT_DATE_2=" + endDate
-                + "&FID_PERIOD_DIV_CODE=D";
-
-        ResponseEntity<String> response = sendRequest(url, "FHKST03030100", HttpMethod.GET);
-        return parseCurrentPriceData(response);
-    }
-
-    // 공통 요청 메서드
+    // 공통 API 요청 메서드
     private ResponseEntity<String> sendRequest(String url, String trId, HttpMethod method) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
@@ -82,7 +84,6 @@ public class UsPriceService {
         headers.set("appkey", appKey);
         headers.set("appsecret", appSecret);
         headers.set("tr_id", trId);
-        headers.set("custtype", "P");
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
@@ -93,8 +94,42 @@ public class UsPriceService {
         }
     }
 
+    // 현재가 데이터 파싱
+    private CurrentPriceData parseCurrentPrice(ResponseEntity<String> response) {
+        try {
+            JsonNode responseJson = objectMapper.readTree(response.getBody());
+
+            if (!"0".equals(responseJson.get("rt_cd").asText())) {
+                String errorMessage = responseJson.has("msg1") ? responseJson.get("msg1").asText() : "Unknown error";
+                throw new RuntimeException("현재가 조회 실패: " + errorMessage);
+            }
+
+            JsonNode output = responseJson.get("output");
+            if (output == null) {
+                throw new RuntimeException("현재가 데이터가 없습니다.");
+            }
+
+            Double lastPrice = output.has("last") ? output.get("last").asDouble() : null;
+            Double priceDiff = output.has("diff") ? output.get("diff").asDouble() : 0.0;
+            Double changeRate = output.has("rate") ? Double.parseDouble(output.get("rate").asText()) : 0.0;
+            String signCode = output.has("sign") ? output.get("sign").asText() : null;
+
+            String priceSign = convertSignCode(signCode);
+
+            return CurrentPriceData.builder()
+                    .currentPrice(lastPrice)
+                    .prdyVrss(priceDiff)
+                    .prdyCtrt(changeRate)
+                    .prdyVrssSign(priceSign)
+                    .build();
+
+        } catch (Exception e) {
+            throw new RuntimeException("현재가 데이터 파싱 오류 발생: " + e.getMessage(), e);
+        }
+    }
+
     // 1개월 전 가격 파싱
-    private Double parseOneMonthAgoPrice(ResponseEntity<String> response) {
+    private Double parseOneMonthAgoPrice(ResponseEntity<String> response, LocalDate today) {
         try {
             JsonNode responseJson = objectMapper.readTree(response.getBody());
 
@@ -104,80 +139,39 @@ public class UsPriceService {
             }
 
             JsonNode output2 = responseJson.get("output2");
-            if (output2 == null || !output2.isArray() || output2.size() == 0) {
+            if (output2 == null || !output2.isArray() || output2.isEmpty()) {
                 throw new RuntimeException("1개월 전 가격 데이터가 없습니다.");
             }
 
-            // 첫 번째 데이터 가져오기
-            JsonNode oneMonthAgoData = output2.get(0);
+            LocalDate oneMonthAgo = today.minusMonths(1);
 
-            if (oneMonthAgoData == null || !oneMonthAgoData.has("ovrs_nmix_prpr")) {
-                throw new RuntimeException("1개월 전 가격 데이터에 유효한 값이 없습니다.");
+            // 1개월 전 날짜에 가장 가까운 데이터를 가져옴
+            for (JsonNode data : output2) {
+                String dateStr = data.get("xymd").asText();
+                LocalDate date = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyyMMdd"));
+                if (!date.isAfter(oneMonthAgo)) {
+                    return data.get("clos").asDouble(); // 종가
+                }
             }
 
-            return oneMonthAgoData.get("ovrs_nmix_prpr").asDouble();
+            throw new RuntimeException("1개월 전 가격 데이터가 없습니다.");
 
         } catch (Exception e) {
             throw new RuntimeException("1개월 전 가격 파싱 오류 발생: " + e.getMessage(), e);
         }
     }
 
-    // 현재가 데이터 파싱
-    private CurrentPriceData parseCurrentPriceData(ResponseEntity<String> response) {
-        try {
-            JsonNode responseJson = objectMapper.readTree(response.getBody());
-
-            if (!"0".equals(responseJson.get("rt_cd").asText())) {
-                String errorMessage = responseJson.has("msg1") ? responseJson.get("msg1").asText() : "Unknown error";
-                throw new RuntimeException("현재가 조회 실패: " + errorMessage);
-            }
-
-            JsonNode output2 = responseJson.get("output2");
-            if (output2 == null || !output2.isArray() || output2.size() == 0) {
-                throw new RuntimeException("현재가 데이터가 없습니다.");
-            }
-
-            // 가장 최근의 데이터 가져오기
-            JsonNode latestData = output2.get(0);
-
-            String currentPriceStr = latestData.has("ovrs_nmix_prpr") ? latestData.get("ovrs_nmix_prpr").asText() : null;
-            Double currentPrice = (currentPriceStr != null && !currentPriceStr.equals("0"))
-                    ? Double.parseDouble(currentPriceStr)
-                    : null;
-
-            if (currentPrice == null) {
-                throw new RuntimeException("유효하지 않은 현재가 데이터입니다: " + currentPriceStr);
-            }
-
-            Double priceChange = latestData.has("ovrs_nmix_prdy_vrss") ? latestData.get("ovrs_nmix_prdy_vrss").asDouble() : 0.0;
-            Double priceChangeRate = latestData.has("prdy_ctrt") ? latestData.get("prdy_ctrt").asDouble() : 0.0;
-            String priceChangeSignCode = latestData.has("prdy_vrss_sign") ? latestData.get("prdy_vrss_sign").asText() : null;
-
-            String priceChangeSign = convertSignCode(priceChangeSignCode);
-
-            return CurrentPriceData.builder()
-                    .currentPrice(currentPrice)
-                    .prdyVrss(priceChange)
-                    .prdyCtrt(priceChangeRate)
-                    .prdyVrssSign(priceChangeSign)
-                    .build();
-
-        } catch (Exception e) {
-            throw new RuntimeException("현재가 데이터 파싱 오류 발생: " + e.getMessage(), e);
-        }
-    }
-
     // 부호 코드 변환 메서드
     private String convertSignCode(String signCode) {
         if (signCode == null) {
-            return null;
+            return "알 수 없음";
         }
         switch (signCode) {
             case "1":
             case "2":
                 return "상승";
             case "3":
-                return "동일";
+                return "보합";
             case "4":
             case "5":
                 return "하락";
