@@ -6,4 +6,5 @@ import java.util.Optional;
 
 public interface EtfRepository extends JpaRepository<ETF, Long> {
     Optional<ETF> findByEtfNum(String etfNum);
+    Optional<ETF> findByTicker(String ticker);
 }

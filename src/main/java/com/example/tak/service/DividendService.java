@@ -1,68 +1,47 @@
 package com.example.tak.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Value;
+import com.example.tak.dto.response.DistributionInfo;
+import com.example.tak.repository.EtfRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class DividendService {
-    private final RestTemplate restTemplate = new RestTemplate();
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Value("${ACCESS_TOKEN}")
-    private String accessToken;
+    private final DistributionService distributionService;
+    private final EtfRepository etfRepository;
 
-    @Value("${APP_KEY}")
-    private String appKey;
-
-    @Value("${APP_SECRET}")
-    private String appSecret;
-
-    public Float getDividendRate(String pdno) {
-        String url = "https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/ksdinfo/dividend?sht_cd=" + pdno;
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("content-type", "application/json");
-        headers.set("authorization", accessToken);
-        headers.set("appkey", appKey);
-        headers.set("appsecret", appSecret);
-        headers.set("tr_id", "HHKDB669102C0");
-        headers.set("custtype", "P");
-
-        HttpEntity<String> entity = new HttpEntity<>("", headers);
-        ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
-
-        try {
-            // API 응답 데이터 출력 (디버깅)
-            System.out.println("API Response: " + response.getBody());
-
-            // JSON 파싱
-            JsonNode responseJson = objectMapper.readTree(response.getBody());
-            JsonNode outputArray = responseJson.get("output1");
-
-            if (outputArray != null && outputArray.isArray() && outputArray.size() > 0) {
-                JsonNode latestDividend = outputArray.get(0);
-
-                // divi_rate 키 확인
-                if (latestDividend.has("divi_rate")) {
-                    return latestDividend.get("divi_rate").floatValue();
-                } else {
-                    System.err.println("divi_rate 키가 응답에 없습니다.");
-                }
-            } else {
-                System.err.println("배당 데이터가 없는 ETF입니다. 기본값 0.0 반환.");
-                return 0.0f;
-            }
-        } catch (Exception e) {
-            System.err.println("오류 발생: " + e.getMessage());
-            throw new RuntimeException("JSON 파싱 중 오류 발생", e);
+    public Float calculateDividendRate(String etfNum) {
+        // 1. ETF 기본 정보에서 가격 가져오기
+        var etfData = etfRepository.findByEtfNum(etfNum)
+                .orElseThrow(() -> new RuntimeException("ETF 데이터를 찾을 수 없습니다: " + etfNum));
+        Long price = etfData.getPrice();
+        if (price == null || price <= 0) {
+            throw new RuntimeException("유효하지 않은 ETF 가격입니다.");
         }
-        return null; // 데이터가 없으면 null 반환
-    }
 
+        // 2. 분배금 일정 가져오기
+        List<DistributionInfo> distributions = distributionService.getDistributionSchedule(etfNum);
+
+        // 3. 가장 최근 분배금 가져오기 (없으면 0.0 반환)
+        Double distributionAmount = distributions.stream()
+                .max((d1, d2) -> d1.getPaymentStandardDate().compareTo(d2.getPaymentStandardDate()))
+                .map(DistributionInfo::getDistributionAmount)
+                .orElse(0.0);
+
+        if (distributionAmount <= 0) {
+            System.out.println("분배금 데이터가 없거나 유효하지 않습니다. 기본값 0.0 사용.");
+        }
+
+        // 4. 배당률 계산 (분배금 / 가격 * 100)
+        float dividendRate = (float) ((distributionAmount / price) * 100);
+        return BigDecimal.valueOf(dividendRate)
+                .setScale(2, RoundingMode.HALF_UP)
+                .floatValue();
+    }
 }

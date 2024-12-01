@@ -9,6 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 @Service
 public class StockInfoService {
     private final RestTemplate restTemplate = new RestTemplate();
@@ -43,7 +46,10 @@ public class StockInfoService {
             JsonNode output = responseJson.get("output");
 
             if (output != null && output.has("scts_mket_lstg_dt")) {
-                return output.get("scts_mket_lstg_dt").asText();
+                String rawDate = output.get("scts_mket_lstg_dt").asText(); // 원본 날짜
+                // 날짜 포맷 변환
+                return LocalDate.parse(rawDate, DateTimeFormatter.ofPattern("yyyyMMdd"))
+                        .format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
             } else {
                 throw new RuntimeException("상장일 정보가 API 응답에 없습니다.");
             }
