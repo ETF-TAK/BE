@@ -1,8 +1,11 @@
 package com.example.tak.controller;
 
+import com.example.tak.common.Category;
+import com.example.tak.config.response.ApiResponse;
 import com.example.tak.dto.request.EtfInfoRequest;
 import com.example.tak.dto.response.EtfDetailResult;
-import com.example.tak.service.EtfComparisonService;
+import com.example.tak.dto.response.EtfResponseDto;
+import com.example.tak.service.EtfCompareListService;
 import com.example.tak.service.EtfDetailService;
 import com.example.tak.service.EtfInfoService;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -19,6 +23,7 @@ public class EtfCompareController {
 
     private final EtfInfoService etfInfoService;
     private final EtfDetailService etfDetailService;
+    private final EtfCompareListService etfCompareListService;
 
     // 비교 페이지
     @PostMapping
@@ -36,4 +41,13 @@ public class EtfCompareController {
 
         return response;
     }
+
+    // ETF 검색 (비교 화면)
+    @GetMapping("/search")
+    public ApiResponse<List<EtfResponseDto.CompareEtfDto>> searchEtf(@RequestParam("keyword") String keyword, @RequestParam("category")Category category)
+    {
+        List<EtfResponseDto.CompareEtfDto> response = etfCompareListService.searchByCategory(keyword, category);
+        return ApiResponse.onSuccess(response);
+    }
+
 }
