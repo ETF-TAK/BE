@@ -12,6 +12,8 @@ import java.util.List;
 @Repository
 public interface ETFTagSearchRepository extends JpaRepository<ETF, Long> {
 
+    List<ETF> findByNameIn(List<String> names);
+
     @Query("SELECT e.name FROM ETF e WHERE " +
             "(:keyword IS NULL OR e.name LIKE %:keyword%) AND " +
             "(:nation IS NULL OR :nation = com.example.tak.common.Nation.ALL OR e.nation = :nation) AND " +

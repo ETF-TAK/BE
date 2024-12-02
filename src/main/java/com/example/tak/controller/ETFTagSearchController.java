@@ -2,6 +2,7 @@ package com.example.tak.controller;
 
 import com.example.tak.common.Nation;
 import com.example.tak.config.response.ApiResponse;
+import com.example.tak.dto.response.ETFTagSearchResponseDTO;
 import com.example.tak.service.ETFTagSearchService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +22,7 @@ public class ETFTagSearchController {
     }
 
     @GetMapping("/api/tag/search")
-    public ApiResponse<List<String>> getETFNames(
+    public ApiResponse<List<ETFTagSearchResponseDTO>> getETFNames(
             @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(name = "nation", required = false, defaultValue = "전체") String nation,
             @RequestParam(name = "sector", required = false, defaultValue = "전체") String sector
@@ -29,7 +30,7 @@ public class ETFTagSearchController {
         Nation nationEnum = "전체".equals(nation) ? Nation.ALL : Nation.valueOf(nation);
 //        sector = "전체".equals(sector) ? "전체" : sector;
 
-        List<String> etfNames = etfTagSearchService.searchETFName(keyword, nationEnum, sector);
-        return ApiResponse.onSuccess(etfNames);
+        List<ETFTagSearchResponseDTO> etfData = etfTagSearchService.searchETFName(keyword, nationEnum, sector);
+        return ApiResponse.onSuccess(etfData);
     }
 }
