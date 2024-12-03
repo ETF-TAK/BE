@@ -92,7 +92,7 @@ public class InvestPriceService {
         result.put("etfNum", etfNum);
         result.put("currentPrice", currentPrice);
         result.put("oneYearAgoPrice", oneYearAgoPrice);
-        result.put("profit", profit);
+        result.put("profit", profit + "원");
         result.put("profitRate", profitRate + "%");
 
         return result;
