@@ -61,9 +61,15 @@ public class ETFTagSearchService {
         return etfNames.stream()
                 .flatMap(name -> etfTagSearchRepository.findByName(name).stream())
                 .map(etf -> {
-                    CurrentPriceData priceData = getCurrentPrice(etf);
-                    return toCompareEtfDto(etf, etf.getName(), priceData);
+                    try {
+                        CurrentPriceData priceData = getCurrentPrice(etf);
+                        return toCompareEtfDto(etf, etf.getName(), priceData);
+                    } catch (Exception e) {
+                        System.err.println("Error retrieving price data for ETF: " + etf.getName() + ", " + e.getMessage());
+                        return null; // 데이터를 무시
+                    }
                 })
+                .filter(dto -> dto != null) // null 데이터를 제외
                 .toList();
     }
 
@@ -92,12 +98,23 @@ public class ETFTagSearchService {
         System.out.println("ETF Number (KOREA): " + etf.getEtfNum());
         System.out.println("ETF Ticker (US): " + etf.getTicker());
 
-        if (etf.getNation() == Nation.KOREA) {
-            return priceService.getCurrentPriceData(etf.getEtfNum());
-        } else if (etf.getNation() == Nation.US) {
-            return usPriceService.getCurrentPriceData(etf.getTicker());
-        } else {
-            throw new EtfHandler(ErrorStatus.ETF_NOT_FOUND);
+        try {
+            if (etf.getNation() == Nation.KOREA) {
+                return priceService.getCurrentPriceData(etf.getEtfNum());
+            } else if (etf.getNation() == Nation.US) {
+                return usPriceService.getCurrentPriceData(etf.getTicker());
+            } else {
+                throw new EtfHandler(ErrorStatus.ETF_NOT_FOUND);
+            }
+        } catch (Exception e) {
+            System.err.println("Error retrieving current price for ETF: " + etf.getName() + ", " + e.getMessage());
+            // 기본값 반환
+            return CurrentPriceData.builder()
+                    .currentPrice(0.0)
+                    .prdyVrss(0.0)
+                    .prdyCtrt(0.0)
+                    .prdyVrssSign("N/A")
+                    .build();
         }
     }
 }
