@@ -71,12 +71,27 @@ public class EtfGetListService {
     }
 
     private CurrentPriceData getCurrentPrice(ETF etf) {
-        if (etf.getNation() == Nation.KOREA) {
-            return priceService.getCurrentPriceData(etf.getEtfNum());
-        } else if (etf.getNation() == Nation.US) {
-            return usPriceService.getCurrentPriceData(etf.getTicker());
-        } else {
-            throw new EtfHandler(ErrorStatus.ETF_NOT_FOUND);
+        System.out.println("ETF Nation: " + etf.getNation());
+        System.out.println("ETF Number (KOREA): " + etf.getEtfNum());
+        System.out.println("ETF Ticker (US): " + etf.getTicker());
+
+        try {
+            if (etf.getNation() == Nation.KOREA) {
+                return priceService.getCurrentPriceData(etf.getEtfNum());
+            } else if (etf.getNation() == Nation.US) {
+                return usPriceService.getCurrentPriceData(etf.getTicker());
+            } else {
+                throw new EtfHandler(ErrorStatus.ETF_NOT_FOUND);
+            }
+        } catch (Exception e) {
+            System.err.println("Error retrieving current price for ETF: " + etf.getName() + ", " + e.getMessage());
+            // 기본값 반환
+            return CurrentPriceData.builder()
+                    .currentPrice(0.0)
+                    .prdyVrss(0.0)
+                    .prdyCtrt(0.0)
+                    .prdyVrssSign("N/A")
+                    .build();
         }
     }
 }
