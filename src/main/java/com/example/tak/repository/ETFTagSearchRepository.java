@@ -7,12 +7,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.awt.print.Pageable;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ETFTagSearchRepository extends JpaRepository<ETF, Long> {
 
-    List<ETF> findByNameIn(List<String> names);
+    List<ETF> findByName(String name);
 
     @Query("SELECT e.name FROM ETF e WHERE " +
             "(:keyword IS NULL OR e.name LIKE %:keyword%) AND " +
@@ -24,7 +26,7 @@ public interface ETFTagSearchRepository extends JpaRepository<ETF, Long> {
             @Param("sectors") List<String> sectors
     );
 
-    @Query("SELECT DISTINCT e.sector FROM ETF e")
-    List<String> findAllSectors();
+    @Query("SELECT DISTINCT e.sector FROM ETF e WHERE e.sector NOT IN ('지수', 'S&P 500')")
+    List<String> findAllSectors(@Param("nation") Nation nation);
 
 }

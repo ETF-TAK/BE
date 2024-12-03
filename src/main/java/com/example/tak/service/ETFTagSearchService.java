@@ -37,23 +37,40 @@ public class ETFTagSearchService {
     }
 
     //ETF 검색 리스트
-    public List<ETFTagSearchResponseDTO> searchETFName(String keyword, Nation nation, String sector){
-        //검색어가 null -> nation / sector 맞는 리스트 출력
-        //검색어가 not null -> nation / sector + keyword 맞는 리스트 출력
-        List<String> sectors = "전체".equals(sector) ? etfTagSearchRepository.findAllSectors() : List.of(sector);
+    public List<ETFTagSearchResponseDTO> searchETFName(String keyword, Nation nation, String sector) {
+        // 섹터 처리
+        List<String> sectors;
+        if ("전체".equals(sector)) {
+            sectors = etfTagSearchRepository.findAllSectors(nation);
+            if (sectors == null || sectors.isEmpty()) {
+                throw new RuntimeException("섹터 데이터가 비어 있습니다.");
+            }
+        } else {
+            sectors = List.of(sector);
+        }
 
+        System.out.println("Nation: " + nation + ", Sectors: " + sectors);
+
+        // 검색 필터 적용
         List<String> etfNames = etfTagSearchRepository.searchByFilter(keyword, nation, sectors);
+        System.out.println("Filtered ETF Names: " + etfNames);
+        if (etfNames == null || etfNames.isEmpty()) {
+            return List.of(); // 조건에 맞는 ETF가 없으면 빈 리스트 반환
+        }
 
-        List<ETF> etfs = etfTagSearchRepository.findByNameIn(etfNames);
-        return etfs.stream()
-                .map(this::toCompareEtfDto)
+        return etfNames.stream()
+                .flatMap(name -> etfTagSearchRepository.findByName(name).stream())
+                .map(etf -> {
+                    CurrentPriceData priceData = getCurrentPrice(etf);
+                    return toCompareEtfDto(etf, etf.getName(), priceData);
+                })
                 .toList();
     }
 
-    // ETF 현재가와 등락률 구하는 메서드
-    private ETFTagSearchResponseDTO toCompareEtfDto(ETF etf) {
 
-        CurrentPriceData priceData = getCurrentPrice(etf);
+
+    // ETF 현재가와 등락률 구하는 메서드
+    public ETFTagSearchResponseDTO toCompareEtfDto(ETF etf, String name, CurrentPriceData priceData) {
 
         String profitRate = priceData.getPrdyCtrt() >= 0
                 ? "+" + String.format("%.2f%%", priceData.getPrdyCtrt())  // 상승: + 붙임
@@ -63,7 +80,7 @@ public class ETFTagSearchService {
 
         // 관련 객체 생성
         return ETFTagSearchResponseDTO.builder()
-                .name(etf.getName())
+                .name(name)
                 .price(priceData.getCurrentPrice().longValue())
                 .profitRate(profitRate)
                 .isPositive(isPositive)
@@ -71,6 +88,10 @@ public class ETFTagSearchService {
     }
 
     private CurrentPriceData getCurrentPrice(ETF etf) {
+        System.out.println("ETF Nation: " + etf.getNation());
+        System.out.println("ETF Number (KOREA): " + etf.getEtfNum());
+        System.out.println("ETF Ticker (US): " + etf.getTicker());
+
         if (etf.getNation() == Nation.KOREA) {
             return priceService.getCurrentPriceData(etf.getEtfNum());
         } else if (etf.getNation() == Nation.US) {
