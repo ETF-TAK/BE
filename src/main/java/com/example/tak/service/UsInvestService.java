@@ -72,10 +72,10 @@ public class UsInvestService {
     public Map<String, Object> calculateProfitAndRate(String ticker) {
         // 현재 가격 가져오기
         CurrentPriceData currentPriceData = getCurrentPriceData(ticker);
-        Double currentPrice = currentPriceData.getCurrentPrice();
+        Double currentPrice = currentPriceData.getCurrentPrice() * 1400;
 
         // 1년 전 가격 가져오기
-        Double oneYearAgoPrice = getOneYearAgoPrice(ticker);
+        Double oneYearAgoPrice = getOneYearAgoPrice(ticker) * 1400;
 
         if (currentPrice == null || oneYearAgoPrice == null) {
             throw new RuntimeException("가격 정보를 가져오지 못했습니다.");
@@ -90,9 +90,9 @@ public class UsInvestService {
         // 결과를 Map에 담아 반환
         Map<String, Object> result = new HashMap<>();
         result.put("ticker", ticker);
-        result.put("currentPrice", currentPrice);
+        result.put("currentPrice", currentPrice  + "원");
         result.put("oneYearAgoPrice", oneYearAgoPrice);
-        result.put("profit", profit);
+        result.put("profit", profit + "원");
         result.put("profitRate", profitRate + "%");
 
         return result;
