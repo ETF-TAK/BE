@@ -9,4 +9,6 @@ import java.util.List;
 public interface EtfDataRepository extends JpaRepository<ETF, Long> {
 
     List<ETF> findByCategory(Category category);
+    List<ETF> findByTickerIsNull();
+    List<ETF> findByTickerIsNotNull();
 }
