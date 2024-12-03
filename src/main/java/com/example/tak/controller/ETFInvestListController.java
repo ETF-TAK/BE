@@ -1,7 +1,5 @@
 package com.example.tak.controller;
 
-import com.example.tak.common.Category;
-import com.example.tak.common.Nation;
 import com.example.tak.dto.response.ETFInvestListResponseDTO;
 import com.example.tak.service.ETFInvestListService;
 import lombok.RequiredArgsConstructor;
