@@ -6,8 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 public class EtfResponseDto {
 
     @Getter
@@ -18,6 +16,7 @@ public class EtfResponseDto {
         private Long etfId;
         private Category category;
         private String name;
+        private String sector;
         private Long fee;
         private Long price;
         private String profitRate;
