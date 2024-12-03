@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public enum Nation {
 
+    ALL("전체"),
     KOREA("한국"),
     US("미국");
 
@@ -17,7 +18,7 @@ public enum Nation {
     @JsonCreator
     public static Nation fromName(String name) {
         for (Nation nation : Nation.values()) {
-            if (nation.name().equalsIgnoreCase(name)) {
+            if (nation.name().equalsIgnoreCase(name) || nation.getDescription().equalsIgnoreCase(name)) {
                 return nation;
             }
         }
