@@ -79,6 +79,7 @@ public class EtfInfoService {
 
         return EtfInfoResponse.builder()
                 .name(etfData.getName())
+                .sector(etfData.getSector())
                 .company(etfData.getCompany())
                 .listingDate(listingDate)
                 .netWorth(etfData.getNetWorth())

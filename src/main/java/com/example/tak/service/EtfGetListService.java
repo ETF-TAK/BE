@@ -61,6 +61,8 @@ public class EtfGetListService {
                     .sector(etf.getSector())
                     .name(etf.getName())
                     .fee(etf.getFee())
+                    .ticker(etf.getTicker())
+                    .etfNum(etf.getEtfNum())
                     .price(priceData.getCurrentPrice().longValue())
                     .profitRate(profitRate)
                     .isPositive(isPositive)

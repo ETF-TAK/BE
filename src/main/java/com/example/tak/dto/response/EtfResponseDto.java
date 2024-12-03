@@ -19,6 +19,8 @@ public class EtfResponseDto {
         private String sector;
         private Long fee;
         private Long price;
+        private String ticker;
+        private String etfNum;
         private String profitRate;
         private boolean isPositive;
     }
