@@ -24,11 +24,18 @@ public class ETFTagSearchController {
     @GetMapping("/api/tag/search")
     public ApiResponse<List<ETFTagSearchResponseDTO>> getETFNames(
             @RequestParam(name = "keyword", required = false) String keyword,
-            @RequestParam(name = "nation", required = false, defaultValue = "전체") String nation,
+            @RequestParam(name = "nation", required = false, defaultValue = "전체") Nation nation,
             @RequestParam(name = "sector", required = false, defaultValue = "전체") String sector
     ) {
-        Nation nationEnum = "전체".equals(nation) ? Nation.ALL : Nation.valueOf(nation);
-//        sector = "전체".equals(sector) ? "전체" : sector;
+        System.out.println("Received nation parameter: " + nation); // 디버깅 로그
+        Nation nationEnum;
+        try {
+            nationEnum = "전체".equals(nation) ? Nation.ALL : nation;
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid nation parameter: " + nation, e);
+        }
+
+        sector = "전체".equals(sector) ? "전체" : sector;
 
         List<ETFTagSearchResponseDTO> etfData = etfTagSearchService.searchETFName(keyword, nationEnum, sector);
         return ApiResponse.onSuccess(etfData);
