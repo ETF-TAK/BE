@@ -11,4 +11,5 @@ public interface EtfDataRepository extends JpaRepository<ETF, Long> {
     List<ETF> findByCategory(Category category);
     List<ETF> findByTickerIsNull();
     List<ETF> findByTickerIsNotNull();
+    List<ETF> findByName(String name);
 }
