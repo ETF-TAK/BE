@@ -61,7 +61,7 @@ public class EtfGetListService {
                     .sector(etf.getSector())
                     .name(etf.getName())
                     .fee(etf.getFee())
-                    .price(priceData.getCurrentPrice().longValue() * 1400)
+                    .price(priceData.getCurrentPrice().longValue())
                     .profitRate(profitRate)
                     .isPositive(isPositive)
                     .build());
