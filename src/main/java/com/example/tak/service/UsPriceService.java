@@ -117,7 +117,7 @@ public class UsPriceService {
             String priceSign = convertSignCode(signCode);
 
             return CurrentPriceData.builder()
-                    .currentPrice(lastPrice * 1400)
+                    .currentPrice(lastPrice)
                     .prdyVrss(priceDiff)
                     .prdyCtrt(changeRate)
                     .prdyVrssSign(priceSign)
