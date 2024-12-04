@@ -87,7 +87,9 @@ public class ETFTagSearchService {
         // 관련 객체 생성
         return ETFTagSearchResponseDTO.builder()
                 .name(name)
-                .price(priceData.getCurrentPrice().longValue() * 1400)
+                .ticker(etf.getTicker())
+                .etfNum(etf.getEtfNum())
+                .price(priceData.getCurrentPrice().longValue())
                 .profitRate(profitRate)
                 .isPositive(isPositive)
                 .build();

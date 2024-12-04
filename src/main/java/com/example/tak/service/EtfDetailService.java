@@ -52,6 +52,9 @@ public class EtfDetailService {
         CurrentPriceData currentPriceData = usPriceService.getCurrentPriceData(etf.getTicker());
         Double oneMonthAgoPrice = usPriceService.getOneMonthAgoPrice(etf.getTicker());
 
+        System.out.println("oneMonthAgoPrice = " + oneMonthAgoPrice);
+        System.out.println("currentPriceData = " + currentPriceData.getCurrentPrice());
+
         return buildEtfDetailResult(etf, distributions, componentStocks, currentPriceData, oneMonthAgoPrice);
     }
 
@@ -72,7 +75,7 @@ public class EtfDetailService {
         EtfDetailResponse etfDetail = EtfDetailResponse.builder()
                 .etfId(etf.getId())
                 .nation(etf.getNation().getName())
-                .category(etf.getCategory().getName())
+                .category(etf.getCategory() != null ? etf.getCategory().getName() : "N/A")
                 .sector(etf.getSector())
                 .name(etf.getName())
                 .etfNum(etf.getEtfNum())

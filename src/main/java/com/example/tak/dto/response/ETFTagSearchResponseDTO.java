@@ -8,6 +8,8 @@ import lombok.Getter;
 public class ETFTagSearchResponseDTO {
 
     private String name;
+    private String ticker;
+    private String etfNum;
     private Long price;
     private String profitRate;
     private boolean isPositive;

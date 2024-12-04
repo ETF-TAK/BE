@@ -11,6 +11,9 @@ public class EtfInfoResponse {
 
     private String name;
     private String company;
+    private String sector;
+    private String etfNum;
+    private String ticker;
     private String listingDate; // 상장일
     private Long netWorth; // 순자산
     private Float dividendRate; // 연간 배당률

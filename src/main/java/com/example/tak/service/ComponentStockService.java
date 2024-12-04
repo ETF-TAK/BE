@@ -92,10 +92,13 @@ public class ComponentStockService {
                 Double currentPrice = node.has("stck_prpr") ? node.get("stck_prpr").asDouble() : null;
 
                 if (stockCode != null && stockName != null && weight != null && currentPrice != null) {
+
+                    double roundedWeight = Math.round(weight * 10.0) / 10.0;
+
                     ComponentStockInfo stockInfo = ComponentStockInfo.builder()
                             .stockCode(stockCode)
                             .stockName(stockName)
-                            .weight(weight)
+                            .weight(roundedWeight)
                             .currentPrice(currentPrice)
                             .build();
                     stocks.add(stockInfo);

@@ -79,7 +79,9 @@ public class EtfInfoService {
 
         return EtfInfoResponse.builder()
                 .name(etfData.getName())
+                .sector(etfData.getSector())
                 .company(etfData.getCompany())
+                .etfNum(etfData.getEtfNum())
                 .listingDate(listingDate)
                 .netWorth(etfData.getNetWorth())
                 .dividendRate(dividendRate)
@@ -110,7 +112,9 @@ public class EtfInfoService {
 
         return EtfInfoResponse.builder()
                 .name(etfData.getName())
+                .sector(etfData.getSector())
                 .company(etfData.getCompany())
+                .ticker(etfData.getTicker())
                 .listingDate(formattedListingDate)
                 .netWorth(etfData.getNetWorth())
                 .dividendRate(dividendRate)
