@@ -52,7 +52,7 @@ public class ETF extends BaseEntity {
     private Nation nation;
 
     @Column(name = "fee")
-    private Long fee;
+    private Float fee;
 
     @Column(name = "price")
     private Long price;
@@ -79,7 +79,7 @@ public class ETF extends BaseEntity {
     private List<Distribution> distributions = new ArrayList<>();
 
     public static ETF of(String name, String company, LocalDateTime listingDate,
-                         Long netWorth, Float dividendRate, String sector, Category category, Long fee,
+                         Long netWorth, Float dividendRate, String sector, Category category, Float fee,
                          Long price, String ticker, String etfNum, Double iNav, String investPoint) {
         return ETF.builder()
                 .name(name)
