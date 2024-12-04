@@ -20,7 +20,7 @@ public class ETFInvestListController {
 
 
     @GetMapping("/api/invest")
-    public ResponseEntity<List<ETFInvestListResponseDTO>> getInvestList(@RequestParam String filter) {
+    public ResponseEntity<List<ETFInvestListResponseDTO>> getInvestList(@RequestParam(name = "filter") String filter) {
         List<ETFInvestListResponseDTO> etfInvestList = etfInvestListService.getETFInvestList(filter);
         return ResponseEntity.ok(etfInvestList);
     }
