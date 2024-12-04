@@ -31,7 +31,7 @@ public class StockInfoService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("content-type", "application/json");
-        headers.set("authorization", accessToken);
+        headers.set("authorization", "Bearer " + accessToken);
         headers.set("appkey", appKey);
         headers.set("appsecret", appSecret);
         headers.set("tr_id", "CTPF1002R");
