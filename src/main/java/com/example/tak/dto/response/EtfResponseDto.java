@@ -17,7 +17,7 @@ public class EtfResponseDto {
         private Category category;
         private String name;
         private String sector;
-        private Long fee;
+        private Float fee;
         private Long price;
         private String ticker;
         private String etfNum;
