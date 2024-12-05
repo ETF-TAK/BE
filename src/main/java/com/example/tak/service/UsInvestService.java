@@ -102,7 +102,7 @@ public class UsInvestService {
     private ResponseEntity<String> sendRequest(String url, String trId, HttpMethod method) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
-        headers.set("authorization", accessToken);
+        headers.set("authorization", "Bearer " + accessToken);
         headers.set("appkey", appKey);
         headers.set("appsecret", appSecret);
         headers.set("tr_id", trId);
