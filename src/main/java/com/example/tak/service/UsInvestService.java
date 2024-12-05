@@ -44,6 +44,9 @@ public class UsInvestService {
                 + "?AUTH="
                 + "&EXCD=AMS"
                 + "&SYMB=" + ticker;
+        System.out.println("---");
+        System.out.println(accessToken);
+        System.out.println("---");
 
         ResponseEntity<String> response = sendRequest(url, "HHDFS00000300", HttpMethod.GET);
         return parseCurrentPrice(response);
@@ -103,9 +106,7 @@ public class UsInvestService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
         headers.set("Authorization", "Bearer " + accessToken);
-        System.out.println("---");
-        System.out.println(accessToken);
-        System.out.println("---");
+
 
         headers.set("appkey", appKey);
         headers.set("appsecret", appSecret);
