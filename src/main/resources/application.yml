@@ -25,3 +25,7 @@ logging:
       springframework:
         security: DEBUG
 
+
+ACCESS_TOKEN: ${ACCESS_TOKEN}
+APP_KEY: ${APP_KEY}
+APP_SECRET: ${APP_SECRET}
