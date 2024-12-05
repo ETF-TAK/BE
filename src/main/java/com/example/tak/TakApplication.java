@@ -7,6 +7,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class TakApplication {
 
 	public static void main(String[] args) {
+		System.getenv().forEach((key, value) -> {
+			System.out.println(key + " = " + value);
+		});
+
 		SpringApplication.run(TakApplication.class, args);
 	}
 
