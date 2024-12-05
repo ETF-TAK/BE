@@ -49,7 +49,7 @@ public class DistributionService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
-        headers.set("authorization", accessToken);
+        headers.set("authorization", "Bearer " + accessToken);
         headers.set("appkey", appKey);
         headers.set("appsecret", appSecret);
         headers.set("tr_id", "HHKDB669102C0");
