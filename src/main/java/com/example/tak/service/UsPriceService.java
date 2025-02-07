@@ -1,7 +1,7 @@
 package com.example.tak.service;
 
 import com.example.tak.domain.ETF;
-import com.example.tak.dto.response.CurrentPriceData;
+import com.example.tak.dto.response.CurrentPriceDataDTO;
 import com.example.tak.repository.EtfRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,7 +32,7 @@ public class UsPriceService {
     private String appSecret;
 
     // 현재 체결가 가져오기
-    public CurrentPriceData getCurrentPriceData(String ticker) {
+    public CurrentPriceDataDTO getCurrentPriceData(String ticker) {
         ETF etf = etfRepository.findByTicker(ticker)
                 .orElseThrow(() -> new RuntimeException("ETF 정보를 찾을 수 없습니다: " + ticker));
 
@@ -42,10 +42,10 @@ public class UsPriceService {
                 + "&SYMB=" + ticker;
 
         ResponseEntity<String> response = sendRequest(url, "HHDFS00000300", HttpMethod.GET);
-        CurrentPriceData apiData = parseCurrentPrice(response);
+        CurrentPriceDataDTO apiData = parseCurrentPrice(response);
 
         // DB에서 NAV 가져와 병합
-        return CurrentPriceData.builder()
+        return CurrentPriceDataDTO.builder()
                 .currentPrice(apiData.getCurrentPrice())
                 .prdyVrss(apiData.getPrdyVrss())
                 .prdyCtrt(apiData.getPrdyCtrt())
@@ -95,7 +95,7 @@ public class UsPriceService {
     }
 
     // 현재가 데이터 파싱
-    private CurrentPriceData parseCurrentPrice(ResponseEntity<String> response) {
+    private CurrentPriceDataDTO parseCurrentPrice(ResponseEntity<String> response) {
         try {
             JsonNode responseJson = objectMapper.readTree(response.getBody());
 
@@ -116,7 +116,7 @@ public class UsPriceService {
 
             String priceSign = convertSignCode(signCode);
 
-            return CurrentPriceData.builder()
+            return CurrentPriceDataDTO.builder()
                     .currentPrice(lastPrice)
                     .prdyVrss(priceDiff)
                     .prdyCtrt(changeRate)

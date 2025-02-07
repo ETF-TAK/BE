@@ -1,6 +1,6 @@
 package com.example.tak.service;
 
-import com.example.tak.dto.response.DistributionInfo;
+import com.example.tak.dto.response.DistributionInfoDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class UsDistributionService {
     @Value("${US_API_KEY}")
     private String apiKey;
 
-    public List<DistributionInfo> getUsDistributionSchedule(String ticker) {
+    public List<DistributionInfoDTO> getUsDistributionSchedule(String ticker) {
         String url = "https://api.polygon.io/v3/reference/dividends?ticker=" + ticker + "&limit=10&apiKey=" + apiKey;
 
         try {
@@ -38,7 +38,7 @@ public class UsDistributionService {
 
             // 결과 파싱
             JsonNode results = responseJson.get("results");
-            List<DistributionInfo> distributions = new ArrayList<>();
+            List<DistributionInfoDTO> distributions = new ArrayList<>();
 
             if (results != null && results.isArray()) {
                 long distributionId = 1L; // 분배금 ID 초기값 설정
@@ -55,7 +55,7 @@ public class UsDistributionService {
                     String payDate = LocalDate.parse(payDateStr, inputFormatter).format(outputFormatter);
 
                     // DistributionInfo 생성
-                    DistributionInfo distributionInfo = DistributionInfo.builder()
+                    DistributionInfoDTO distributionInfo = DistributionInfoDTO.builder()
                             .distributionId(distributionId++)
                             .paymentStandardDate(recordDate)
                             .actualPaymentDate(payDate)

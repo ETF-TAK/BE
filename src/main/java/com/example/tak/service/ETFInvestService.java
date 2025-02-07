@@ -2,8 +2,8 @@ package com.example.tak.service;
 
 import com.example.tak.common.Nation;
 import com.example.tak.domain.ETF;
-import com.example.tak.dto.request.ETFInvestRequestDto;
-import com.example.tak.dto.response.ETFInvestResponseDto;
+import com.example.tak.dto.request.ETFInvestRequestDTO;
+import com.example.tak.dto.response.ETFInvestResponseDTO;
 import com.example.tak.repository.EtfDataRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,8 +18,8 @@ public class ETFInvestService {
     private final UsInvestService usInvestService; // UsInvestService 주입
     private final InvestPriceService investPriceService;
 
-    public ETFInvestResponseDto.etfInvestListResponseDto investETF(ETFInvestRequestDto request) {
-        List<ETFInvestResponseDto.etfResultDto> etfResults = new ArrayList<>();
+    public ETFInvestResponseDTO.etfInvestListResponseDto investETF(ETFInvestRequestDTO request) {
+        List<ETFInvestResponseDTO.etfResultDto> etfResults = new ArrayList<>();
         Long totalProfit = 0L;
         Long individualInvestAmount = request.getInvestAmount();
         if (individualInvestAmount == null) {
@@ -27,7 +27,7 @@ public class ETFInvestService {
         }
 
         // 요청된 ETF 리스트 처리
-        for (ETFInvestRequestDto.ETFDto etfDto : request.getEtfList()) {
+        for (ETFInvestRequestDTO.ETFDto etfDto : request.getEtfList()) {
             List<ETF> etfEntities = etfDataRepository.findByName(etfDto.getName());
 
             if (!etfEntities.isEmpty()) {
@@ -63,7 +63,7 @@ public class ETFInvestService {
                         // 예외가 발생해도 null 값으로 진행
                     }
 
-                    ETFInvestResponseDto.etfResultDto resultDto = ETFInvestResponseDto.etfResultDto.builder()
+                    ETFInvestResponseDTO.etfResultDto resultDto = ETFInvestResponseDTO.etfResultDto.builder()
                             .name(etfEntity.getName())
                             .sector(etfEntity.getSector())
                             .company(etfEntity.getCompany())
@@ -81,7 +81,7 @@ public class ETFInvestService {
             }
         }
 
-        return ETFInvestResponseDto.etfInvestListResponseDto.builder()
+        return ETFInvestResponseDTO.etfInvestListResponseDto.builder()
                 .totalProfit(totalProfit)
                 .etfResults(etfResults)
                 .build();

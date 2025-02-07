@@ -7,7 +7,7 @@ import java.util.List;
 
 @Getter
 @Builder
-public class HistoricalPriceResponse {
+public class HistoricalPriceResponseDTO {
 
     private List<HistoricalPriceData> output2;
 

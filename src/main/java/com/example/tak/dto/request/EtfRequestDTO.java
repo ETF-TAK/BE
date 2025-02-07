@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class EtfRequestDto {
+public class EtfRequestDTO {
 
     private String name;          // ETF 이름
     private String type;          // ETF 유형

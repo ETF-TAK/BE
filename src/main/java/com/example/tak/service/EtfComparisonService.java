@@ -1,6 +1,6 @@
 package com.example.tak.service;
 
-import com.example.tak.dto.response.ComponentStockInfo;
+import com.example.tak.dto.response.ComponentStockInfoDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,8 +17,8 @@ public class EtfComparisonService {
 
     public Map<String, Object> compareEtfComponentStocks(String etfNum1, String etfNum2) {
         // 1. 두 ETF의 구성 종목 가져오기
-        List<ComponentStockInfo> etf1Stocks = componentStockService.getComponentStocks(etfNum1);
-        List<ComponentStockInfo> etf2Stocks = componentStockService.getComponentStocks(etfNum2);
+        List<ComponentStockInfoDTO> etf1Stocks = componentStockService.getComponentStocks(etfNum1);
+        List<ComponentStockInfoDTO> etf2Stocks = componentStockService.getComponentStocks(etfNum2);
 
         // 2. 중복 종목 각각의 비중 포함
         List<Map<String, Object>> overlappingStocks = etf1Stocks.stream()
@@ -30,7 +30,7 @@ public class EtfComparisonService {
                     double weight2 = etf2Stocks.stream()
                             .filter(stock2 -> stock2.getStockName().equals(stockName))
                             .findFirst()
-                            .map(ComponentStockInfo::getWeight)
+                            .map(ComponentStockInfoDTO::getWeight)
                             .orElse(0.0);
 
                     Map<String, Object> stockData = new HashMap<>();

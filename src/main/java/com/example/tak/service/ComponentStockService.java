@@ -1,6 +1,6 @@
 package com.example.tak.service;
 
-import com.example.tak.dto.response.ComponentStockInfo;
+import com.example.tak.dto.response.ComponentStockInfoDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,7 @@ public class ComponentStockService {
     private String appSecret;
 
     // 구성종목 가져오기
-    public List<ComponentStockInfo> getComponentStocks(String etfNum) {
+    public List<ComponentStockInfoDTO> getComponentStocks(String etfNum) {
         String url = "https://openapi.koreainvestment.com:9443/uapi/etfetn/v1/quotations/inquire-component-stock-price"
                 + "?fid_cond_mrkt_div_code=J"
                 + "&fid_input_iscd=" + etfNum
@@ -64,8 +64,8 @@ public class ComponentStockService {
     }
 
     // 구성종목 데이터 파싱
-    private List<ComponentStockInfo> parseComponentStocks(ResponseEntity<String> response) {
-        List<ComponentStockInfo> stocks = new ArrayList<>();
+    private List<ComponentStockInfoDTO> parseComponentStocks(ResponseEntity<String> response) {
+        List<ComponentStockInfoDTO> stocks = new ArrayList<>();
         try {
             JsonNode responseJson = objectMapper.readTree(response.getBody());
 
@@ -95,7 +95,7 @@ public class ComponentStockService {
 
                     double roundedWeight = Math.round(weight * 10.0) / 10.0;
 
-                    ComponentStockInfo stockInfo = ComponentStockInfo.builder()
+                    ComponentStockInfoDTO stockInfo = ComponentStockInfoDTO.builder()
                             .stockCode(stockCode)
                             .stockName(stockName)
                             .weight(roundedWeight)
@@ -106,8 +106,8 @@ public class ComponentStockService {
             }
 
             // 비중 기준으로 정렬하여 상위 10개 선택
-            List<ComponentStockInfo> top10Stocks = stocks.stream()
-                    .sorted(Comparator.comparingDouble(ComponentStockInfo::getWeight).reversed())
+            List<ComponentStockInfoDTO> top10Stocks = stocks.stream()
+                    .sorted(Comparator.comparingDouble(ComponentStockInfoDTO::getWeight).reversed())
                     .limit(10)
                     .collect(Collectors.toList());
 

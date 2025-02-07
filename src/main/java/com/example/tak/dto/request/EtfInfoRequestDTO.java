@@ -5,6 +5,6 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class EtfInfoRequest {
+public class EtfInfoRequestDTO {
     private List<String> etfList;
 }

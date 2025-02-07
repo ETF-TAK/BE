@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class CurrentPriceData {
+public class CurrentPriceDataDTO {
     private Double currentPrice;
     private String prdyVrssSign;
     private Double prdyVrss;
