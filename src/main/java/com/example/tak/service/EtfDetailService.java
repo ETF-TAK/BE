@@ -19,7 +19,7 @@ public class EtfDetailService {
     private final PriceService priceService;
     private final UsPriceService usPriceService;
 
-    public EtfDetailResult getEtfDetailByIdentifier(String identifier) {
+    public EtfDetailResultDTO getEtfDetailByIdentifier(String identifier) {
         // DB에서 identifier를 기반으로 ETF 정보 조회
         ETF etf = etfRepository.findByEtfNum(identifier)
                 .or(() -> etfRepository.findByTicker(identifier))
@@ -35,21 +35,21 @@ public class EtfDetailService {
         }
     }
 
-    private EtfDetailResult getKoreaEtfDetail(ETF etf) {
+    private EtfDetailResultDTO getKoreaEtfDetail(ETF etf) {
         // 한국 ETF의 상세 정보 처리
-        List<DistributionInfo> distributions = distributionService.getDistributionSchedule(etf.getEtfNum());
-        List<ComponentStockInfo> componentStocks = componentStockService.getComponentStocks(etf.getEtfNum());
-        CurrentPriceData currentPriceData = priceService.getCurrentPriceData(etf.getEtfNum());
+        List<DistributionInfoDTO> distributions = distributionService.getDistributionSchedule(etf.getEtfNum());
+        List<ComponentStockInfoDTO> componentStocks = componentStockService.getComponentStocks(etf.getEtfNum());
+        CurrentPriceDataDTO currentPriceData = priceService.getCurrentPriceData(etf.getEtfNum());
         Double oneMonthAgoPrice = priceService.getOneMonthAgoPrice(etf.getEtfNum());
 
         return buildEtfDetailResult(etf, distributions, componentStocks, currentPriceData, oneMonthAgoPrice);
     }
 
-    private EtfDetailResult getUsEtfDetail(ETF etf) {
+    private EtfDetailResultDTO getUsEtfDetail(ETF etf) {
         // 미국 ETF의 상세 정보 처리
-        List<DistributionInfo> distributions = usDistributionService.getUsDistributionSchedule(etf.getTicker());
-        List<ComponentStockInfo> componentStocks = componentStockService.getComponentStocks(etf.getTicker());
-        CurrentPriceData currentPriceData = usPriceService.getCurrentPriceData(etf.getTicker());
+        List<DistributionInfoDTO> distributions = usDistributionService.getUsDistributionSchedule(etf.getTicker());
+        List<ComponentStockInfoDTO> componentStocks = componentStockService.getComponentStocks(etf.getTicker());
+        CurrentPriceDataDTO currentPriceData = usPriceService.getCurrentPriceData(etf.getTicker());
         Double oneMonthAgoPrice = usPriceService.getOneMonthAgoPrice(etf.getTicker());
 
         System.out.println("oneMonthAgoPrice = " + oneMonthAgoPrice);
@@ -58,11 +58,11 @@ public class EtfDetailService {
         return buildEtfDetailResult(etf, distributions, componentStocks, currentPriceData, oneMonthAgoPrice);
     }
 
-    private EtfDetailResult buildEtfDetailResult(
+    private EtfDetailResultDTO buildEtfDetailResult(
             ETF etf,
-            List<DistributionInfo> distributions,
-            List<ComponentStockInfo> componentStocks,
-            CurrentPriceData currentPriceData,
+            List<DistributionInfoDTO> distributions,
+            List<ComponentStockInfoDTO> componentStocks,
+            CurrentPriceDataDTO currentPriceData,
             Double oneMonthAgoPrice
     ) {
         Double currentPrice = currentPriceData != null ? currentPriceData.getCurrentPrice() : 0.0;
@@ -72,7 +72,7 @@ public class EtfDetailService {
         String profitRate = String.format("%.2f", Math.abs(profitRateValue));
         Boolean isPositive = profitRateValue >= 0;
 
-        EtfDetailResponse etfDetail = EtfDetailResponse.builder()
+        EtfDetailResponseDTO etfDetail = EtfDetailResponseDTO.builder()
                 .etfId(etf.getId())
                 .nation(etf.getNation().getName())
                 .category(etf.getCategory() != null ? etf.getCategory().getName() : "N/A")
@@ -93,7 +93,7 @@ public class EtfDetailService {
                 .navPrdyCtrt(currentPriceData != null ? currentPriceData.getNavPrdyCtrt() : 0.0)
                 .build();
 
-        return EtfDetailResult.builder()
+        return EtfDetailResultDTO.builder()
                 .data(etfDetail)
                 .distribution(distributions)
                 .componentStocks(componentStocks)

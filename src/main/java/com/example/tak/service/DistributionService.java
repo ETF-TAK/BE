@@ -1,6 +1,6 @@
 package com.example.tak.service;
 
-import com.example.tak.dto.response.DistributionInfo;
+import com.example.tak.dto.response.DistributionInfoDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ public class DistributionService {
     @Value("${APP_SECRET}")
     private String appSecret;
 
-    public List<DistributionInfo> getDistributionSchedule(String etfNum) {
+    public List<DistributionInfoDTO> getDistributionSchedule(String etfNum) {
         // 날짜 계산 (1년 전부터 오늘까지)
         LocalDate today = LocalDate.now();
         LocalDate oneYearAgo = today.minusYears(1);
@@ -73,7 +73,7 @@ public class DistributionService {
 
             JsonNode output1 = responseJson.get("output1");
 
-            List<DistributionInfo> distributions = new ArrayList<>();
+            List<DistributionInfoDTO> distributions = new ArrayList<>();
             if (output1 != null && output1.isArray()) {
                 long distributionId = 1L; // 분배금 ID 초기값 설정
                 // 날짜 포맷터 설정
@@ -113,7 +113,7 @@ public class DistributionService {
                         }
                     }
 
-                    DistributionInfo distributionInfo = DistributionInfo.builder()
+                    DistributionInfoDTO distributionInfo = DistributionInfoDTO.builder()
                             .distributionId(distributionId++)
                             .paymentStandardDate(paymentStandardDate)
                             .actualPaymentDate(actualPaymentDate)

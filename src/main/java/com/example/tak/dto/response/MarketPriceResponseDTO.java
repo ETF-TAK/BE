@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class MarketPriceResponse {
+public class MarketPriceResponseDTO {
 
     private final Double currentPrice;       // 현재가
     private final Double nav;                // 기준가

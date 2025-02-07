@@ -1,7 +1,7 @@
 package com.example.tak.service;
 
-import com.example.tak.dto.response.DistributionInfo;
-import com.example.tak.dto.response.EtfInfoResponse;
+import com.example.tak.dto.response.DistributionInfoDTO;
+import com.example.tak.dto.response.EtfInfoResponseDTO;
 import com.example.tak.repository.EtfRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ public class EtfInfoService {
     // ETF 정보를 가져오고 비교 데이터를 추가한 Map을 반환하는 서비스
     public Map<String, Object> getEtfComparisonAsMap(List<String> identifiers) {
         // 1. 기본 정보 처리
-        List<EtfInfoResponse> etfInfos = new ArrayList<>();
+        List<EtfInfoResponseDTO> etfInfos = new ArrayList<>();
         for (String identifier : identifiers) {
             if (isEtfNum(identifier)) {
                 etfInfos.add(getKoreanEtfInfo(identifier));
@@ -70,14 +70,14 @@ public class EtfInfoService {
     }
 
     // 한국 ETF 정보 가져오기
-    private EtfInfoResponse getKoreanEtfInfo(String etfNum) {
+    private EtfInfoResponseDTO getKoreanEtfInfo(String etfNum) {
         var etfData = etfRepository.findByEtfNum(etfNum)
                 .orElseThrow(() -> new RuntimeException("ETF 데이터가 없습니다: " + etfNum));
 
         String listingDate = stockInfoService.getListingDate(etfNum);
         Float dividendRate = dividendService.calculateDividendRate(etfNum);
 
-        return EtfInfoResponse.builder()
+        return EtfInfoResponseDTO.builder()
                 .name(etfData.getName())
                 .sector(etfData.getSector())
                 .company(etfData.getCompany())
@@ -89,13 +89,13 @@ public class EtfInfoService {
     }
 
     // 미국 ETF 정보 가져오기
-    private EtfInfoResponse getUsEtfInfo(String ticker) {
+    private EtfInfoResponseDTO getUsEtfInfo(String ticker) {
         var etfData = etfRepository.findByTicker(ticker)
                 .orElseThrow(() -> new RuntimeException("ETF 데이터를 찾을 수 없습니다: " + ticker));
 
-        List<DistributionInfo> distributions = usDistributionService.getUsDistributionSchedule(ticker);
+        List<DistributionInfoDTO> distributions = usDistributionService.getUsDistributionSchedule(ticker);
 
-        DistributionInfo latestDistribution = distributions.stream()
+        DistributionInfoDTO latestDistribution = distributions.stream()
                 .max((d1, d2) -> d1.getPaymentStandardDate().compareTo(d2.getPaymentStandardDate()))
                 .orElse(null);
 
@@ -110,7 +110,7 @@ public class EtfInfoService {
 
         String formattedListingDate = etfData.getListingDate().format(DATE_FORMATTER);
 
-        return EtfInfoResponse.builder()
+        return EtfInfoResponseDTO.builder()
                 .name(etfData.getName())
                 .sector(etfData.getSector())
                 .company(etfData.getCompany())

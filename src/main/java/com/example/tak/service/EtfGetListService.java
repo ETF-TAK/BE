@@ -5,8 +5,8 @@ import com.example.tak.common.Nation;
 import com.example.tak.config.response.code.resultCode.ErrorStatus;
 import com.example.tak.config.response.exception.handler.EtfHandler;
 import com.example.tak.domain.ETF;
-import com.example.tak.dto.response.CurrentPriceData;
-import com.example.tak.dto.response.EtfResponseDto;
+import com.example.tak.dto.response.CurrentPriceDataDTO;
+import com.example.tak.dto.response.EtfResponseDTO;
 import com.example.tak.repository.EtfDataRepository;
 import com.example.tak.repository.EtfRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class EtfGetListService {
     private final PriceService priceService;
     private final EtfDataRepository etfDataRepository;
 
-    public List<EtfResponseDto.CompareEtfDto> getEtfsByFilter(String filter) {
+    public List<EtfResponseDTO.CompareEtfDto> getEtfsByFilter(String filter) {
         List<ETF> etfs;
 
         try {
@@ -47,15 +47,15 @@ public class EtfGetListService {
         return toCompareEtfDto(etfs);
     }
 
-    private List<EtfResponseDto.CompareEtfDto> toCompareEtfDto(List<ETF> etfs) {
-        List<EtfResponseDto.CompareEtfDto> response = new ArrayList<>();
+    private List<EtfResponseDTO.CompareEtfDto> toCompareEtfDto(List<ETF> etfs) {
+        List<EtfResponseDTO.CompareEtfDto> response = new ArrayList<>();
 
         for (ETF etf : etfs) {
-            CurrentPriceData priceData = getCurrentPrice(etf);
+            CurrentPriceDataDTO priceData = getCurrentPrice(etf);
 
             String profitRate = String.format("%.2f%%", priceData.getPrdyCtrt());
             boolean isPositive = priceData.getPrdyCtrt() >= 0;
-            response.add(EtfResponseDto.CompareEtfDto.builder()
+            response.add(EtfResponseDTO.CompareEtfDto.builder()
                     .etfId(etf.getId())
                     .category(etf.getCategory())
                     .sector(etf.getSector())
@@ -72,7 +72,7 @@ public class EtfGetListService {
 
     }
 
-    private CurrentPriceData getCurrentPrice(ETF etf) {
+    private CurrentPriceDataDTO getCurrentPrice(ETF etf) {
         System.out.println("ETF Nation: " + etf.getNation());
         System.out.println("ETF Number (KOREA): " + etf.getEtfNum());
         System.out.println("ETF Ticker (US): " + etf.getTicker());
@@ -88,7 +88,7 @@ public class EtfGetListService {
         } catch (Exception e) {
             System.err.println("Error retrieving current price for ETF: " + etf.getName() + ", " + e.getMessage());
             // 기본값 반환
-            return CurrentPriceData.builder()
+            return CurrentPriceDataDTO.builder()
                     .currentPrice(0.0)
                     .prdyVrss(0.0)
                     .prdyCtrt(0.0)

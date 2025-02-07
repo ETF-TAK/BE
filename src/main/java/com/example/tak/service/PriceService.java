@@ -1,6 +1,6 @@
 package com.example.tak.service;
 
-import com.example.tak.dto.response.CurrentPriceData;
+import com.example.tak.dto.response.CurrentPriceDataDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -51,7 +51,7 @@ public class PriceService {
     }
 
     // 현재가 및 추가 데이터 가져오기
-    public CurrentPriceData getCurrentPriceData(String etfNum) {
+    public CurrentPriceDataDTO getCurrentPriceData(String etfNum) {
         String url = "https://openapi.koreainvestment.com:9443/uapi/etfetn/v1/quotations/inquire-price"
                 + "?fid_cond_mrkt_div_code=J"
                 + "&fid_input_iscd=" + etfNum;
@@ -117,7 +117,7 @@ public class PriceService {
     }
 
     // 현재가 데이터 파싱
-    private CurrentPriceData parseCurrentPriceData(ResponseEntity<String> response) {
+    private CurrentPriceDataDTO parseCurrentPriceData(ResponseEntity<String> response) {
         try {
             JsonNode responseJson = objectMapper.readTree(response.getBody());
 
@@ -149,7 +149,7 @@ public class PriceService {
             String prdy_vrss_sign = convertSignCode(prdy_vrss_sign_code);
             String nav_prdy_vrss_sign = convertSignCode(nav_prdy_vrss_sign_code);
 
-            return CurrentPriceData.builder()
+            return CurrentPriceDataDTO.builder()
                     .currentPrice(stck_prpr)
                     .prdyVrssSign(prdy_vrss_sign)
                     .prdyVrss(prdy_vrss)

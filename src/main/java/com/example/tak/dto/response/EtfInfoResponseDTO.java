@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 @Builder
 @AllArgsConstructor
-public class EtfInfoResponse {
+public class EtfInfoResponseDTO {
 
     private String name;
     private String company;

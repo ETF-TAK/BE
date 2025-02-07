@@ -1,6 +1,6 @@
 package com.example.tak.service;
 
-import com.example.tak.dto.response.DistributionInfo;
+import com.example.tak.dto.response.DistributionInfoDTO;
 import com.example.tak.repository.EtfRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,12 +26,12 @@ public class DividendService {
         }
 
         // 2. 분배금 일정 가져오기
-        List<DistributionInfo> distributions = distributionService.getDistributionSchedule(etfNum);
+        List<DistributionInfoDTO> distributions = distributionService.getDistributionSchedule(etfNum);
 
         // 3. 가장 최근 분배금 가져오기 (없으면 0.0 반환)
         Double distributionAmount = distributions.stream()
                 .max((d1, d2) -> d1.getPaymentStandardDate().compareTo(d2.getPaymentStandardDate()))
-                .map(DistributionInfo::getDistributionAmount)
+                .map(DistributionInfoDTO::getDistributionAmount)
                 .orElse(0.0);
 
         if (distributionAmount <= 0) {

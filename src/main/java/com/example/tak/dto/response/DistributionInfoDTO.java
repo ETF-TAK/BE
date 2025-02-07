@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class DistributionInfo {
+public class DistributionInfoDTO {
     private final Long distributionId;
     private final String paymentStandardDate;
     private final String actualPaymentDate;

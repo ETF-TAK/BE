@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class ComponentStockInfo {
+public class ComponentStockInfoDTO {
     private String stockCode;    // 종목코드
     private String stockName;    // 종목명
     private Double weight;       // 비중

@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-public class EtfResponseDto {
+public class EtfResponseDTO {
 
     @Getter
     @Builder

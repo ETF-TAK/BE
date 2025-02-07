@@ -62,7 +62,7 @@ public class ETFTagSearchService {
                 .flatMap(name -> etfTagSearchRepository.findByName(name).stream())
                 .map(etf -> {
                     try {
-                        CurrentPriceData priceData = getCurrentPrice(etf);
+                        CurrentPriceDataDTO priceData = getCurrentPrice(etf);
                         return toCompareEtfDto(etf, etf.getName(), priceData);
                     } catch (Exception e) {
                         System.err.println("Error retrieving price data for ETF: " + etf.getName() + ", " + e.getMessage());
@@ -76,7 +76,7 @@ public class ETFTagSearchService {
 
 
     // ETF 현재가와 등락률 구하는 메서드
-    public ETFTagSearchResponseDTO toCompareEtfDto(ETF etf, String name, CurrentPriceData priceData) {
+    public ETFTagSearchResponseDTO toCompareEtfDto(ETF etf, String name, CurrentPriceDataDTO priceData) {
 
         String profitRate = priceData.getPrdyCtrt() >= 0
                 ? "+" + String.format("%.2f%%", priceData.getPrdyCtrt())  // 상승: + 붙임
@@ -95,7 +95,7 @@ public class ETFTagSearchService {
                 .build();
     }
 
-    private CurrentPriceData getCurrentPrice(ETF etf) {
+    private CurrentPriceDataDTO getCurrentPrice(ETF etf) {
         System.out.println("ETF Nation: " + etf.getNation());
         System.out.println("ETF Number (KOREA): " + etf.getEtfNum());
         System.out.println("ETF Ticker (US): " + etf.getTicker());
@@ -111,7 +111,7 @@ public class ETFTagSearchService {
         } catch (Exception e) {
             System.err.println("Error retrieving current price for ETF: " + etf.getName() + ", " + e.getMessage());
             // 기본값 반환
-            return CurrentPriceData.builder()
+            return CurrentPriceDataDTO.builder()
                     .currentPrice(0.0)
                     .prdyVrss(0.0)
                     .prdyCtrt(0.0)

@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class EtfDetailResponse {
+public class EtfDetailResponseDTO {
     private Long etfId;
     private String nation;
     private String category;

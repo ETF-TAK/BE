@@ -3,7 +3,7 @@ package com.example.tak.service;
 import com.example.tak.config.response.code.resultCode.ErrorStatus;
 import com.example.tak.config.response.exception.handler.EtfHandler;
 import com.example.tak.domain.ETF;
-import com.example.tak.dto.response.CurrentPriceData;
+import com.example.tak.dto.response.CurrentPriceDataDTO;
 import com.example.tak.repository.EtfRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,7 +35,7 @@ public class InvestPriceService {
     private String appSecret;
 
     // 현재 체결가 가져오기
-    public CurrentPriceData getCurrnetPriceData(String etfNum) {
+    public CurrentPriceDataDTO getCurrnetPriceData(String etfNum) {
         ETF etf = etfRepository.findByEtfNum(etfNum)
                 .orElseThrow(() -> new EtfHandler(ErrorStatus.ETF_NOT_FOUND));
 
@@ -71,7 +71,7 @@ public class InvestPriceService {
     // 한국 ETF 수익과 수익률 계산
     public Map<String, Object> calculateProfitAndRate(String etfNum) {
         // 현재가 가져오기
-        CurrentPriceData currentPriceData = getCurrentPriceData(etfNum);
+        CurrentPriceDataDTO currentPriceData = getCurrentPriceData(etfNum);
         Double currentPrice = currentPriceData.getCurrentPrice();
 
         // 1년 전 가격 가져오기
@@ -157,7 +157,7 @@ public class InvestPriceService {
     }
 
     // 현재가 및 추가 데이터 가져오기
-    public CurrentPriceData getCurrentPriceData(String etfNum) {
+    public CurrentPriceDataDTO getCurrentPriceData(String etfNum) {
         String url = "https://openapi.koreainvestment.com:9443/uapi/etfetn/v1/quotations/inquire-price"
                 + "?fid_cond_mrkt_div_code=J"
                 + "&fid_input_iscd=" + etfNum;
@@ -167,7 +167,7 @@ public class InvestPriceService {
     }
 
     // 현재가 데이터 파싱
-    private CurrentPriceData parseCurrentPriceData(ResponseEntity<String> response) {
+    private CurrentPriceDataDTO parseCurrentPriceData(ResponseEntity<String> response) {
         try {
             JsonNode responseJson = objectMapper.readTree(response.getBody());
 
@@ -199,7 +199,7 @@ public class InvestPriceService {
             String prdy_vrss_sign = convertSignCode(prdy_vrss_sign_code);
             String nav_prdy_vrss_sign = convertSignCode(nav_prdy_vrss_sign_code);
 
-            return CurrentPriceData.builder()
+            return CurrentPriceDataDTO.builder()
                     .currentPrice(stck_prpr)
                     .prdyVrssSign(prdy_vrss_sign)
                     .prdyVrss(prdy_vrss)

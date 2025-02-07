@@ -12,7 +12,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ETFInvestRequestDto {
+public class ETFInvestRequestDTO {
     private Long investAmount;
     private List<ETFDto> etfList = new ArrayList<>();
 
