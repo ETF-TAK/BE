@@ -32,7 +32,7 @@ pr feat/#이슈번호-기능요약
 
 # Introduce ETF-TAK 💰💸
 
-![logo](https://github.com/user-attachments/assets/5e4deb83-8752-4f5c-8a55-8307f46fdf3b)
+[![logo](https://github.com/user-attachments/assets/5e4deb83-8752-4f5c-8a55-8307f46fdf3b)](https://etf-tak.vercel.app/)
 
 ## 💰💸 소개
 ### ETF, 이제 쉽게 비교하세요
